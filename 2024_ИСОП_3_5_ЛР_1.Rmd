@@ -1,0 +1,152 @@
+---
+title: Лабораторная работа 1. Задания
+author: "Автор"
+date: "10/02/2024"
+output:
+  word_document: default
+  html_document:
+    df_print: paged
+  pdf_document:
+    latex_engine: lualatex
+    includes:
+      in_header: preamble.tex
+---
+
+# Задача 1
+
+Постройте график функции и её производных $F=(x-5)^2+6x$. Найдите минимум функции.
+
+**График функции:**
+
+```{r}
+library(plotly)
+x <- seq(-1, 5, length.out=1000)
+f = (x-5)^2+6*x
+y <- f
+data <- data.frame(x, y);
+plot_ly(data, x= ~x, y=~y,type = 'scatter', mode = 'lines')
+```
+
+**График производной функции:**
+
+```{r}
+library(plotly)
+x <- seq(-35, 30, length.out=100)
+y <- eval(D(expression((x-5)^2+6*x),"x"))
+data <- data.frame(x, y)
+plot_ly(data, x= ~x, y=~y,type = 'scatter', mode = 'lines')
+#минимум функции
+func <- function(x)
+{
+	return <- (x-5)^2+6*x
+}
+optimize(f=func,interval=c(-35,30))
+```
+
+# Задача 2
+
+Лампа висит над центром круглого стола радиуса $r$. Освещение прямо пропорционально косинусу угла падения световых лучей и обратно пропорционально квадрату расстояния до источника света. На какой высоте лампы над столом $x$ освещение предмета, лежащего на краю стола, будет наилучшим? Пусть $r=1 м.$ Постройте график зависимости освещенности от высоты подвеса светильника. Найдите производную этой функции и постройте ее график.
+
+![](images/Img1.1-01.png){width="319"}
+
+**Решение.** По условию задачи освещение $E$ прямо пропорционально косинусу угла падения световых лучей и обратно пропорционально квадрату расстояния до источника света, тогда $E=k*cos/(x^2+r^2)$. Выразив косинус как $cos=x/(x^2+r^2)^(1/2)$, получаем функцию $E=x/(x^2+r^2)^(3/2)$, при $k=1$.
+
+```{r}
+library(plotly)
+r=2;
+x<-seq(0,3,length.out=1000)
+y<-(x/(sqrt(x^2+r^2)*(x^2+r^2)))
+y1<-eval(D(expression(x/(sqrt(x^2+r^2)*(x^2+r^2))),"x"))
+data<-data.frame(x,y)
+data1<-data.frame(x,y1)
+plot_ly(data, x=~x, y=~y,type = 'scatter', mode = 'lines')
+plot_ly(data1, x=~x, y=~y1,type = 'scatter', mode = 'lines')
+func <- function(x)
+{
+	return <- x/(sqrt(x^2+r^2)*(x^2+r^2))
+}
+#максимум освещенности
+optimize(f=func,interval=c(0,3), maximum=TRUE)
+```
+
+# Задача 3
+
+Постройте объемный и контурный графики функции $F=3x^2+xy+2y^2-x-4y$. Найдите частные производные. Определите точки максимума, минимума и перегиба.
+
+**Объемный график:**
+
+```{r}
+library(plotly)
+x <- y <- seq(0, 1, length.out=100)
+f = expression(3*x^2+x*y+2*y^2-x-4*y)
+z <- outer(x, y, FUN = function(x,y) { 3*x^2+x*y+2*y^2-x-4*y })  |> t()
+plot_ly(z = ~z) |> add_surface()
+D(f, 'x')
+D(f, 'y')
+f1 <- D(f, 'x')
+f2 <- D(f, 'y')
+f3 <- D(f1, 'x')
+f4 <- D(f2, 'y')
+f5 <- D(f2, 'x')
+res1 <- eval(f3)
+res2 <- eval(f4)
+res3 <- eval(f5)
+func <- function(x)
+{
+	return <- 3*x[1]^2+x[1]*x[2]+2*x[2]^2-x[1]-4*x[2]
+}
+result <- optim(c(0, 0), func)
+if(res1*res2-res3^2 >0 && res1 > 0){
+   print("минимум функции:")
+   print(result$par)
+   print("максимума функции нет")
+}
+if (res1*res2-res3^2 > 0 && res1 < 0) {
+  print("максимум функции:")
+   print(result$par)
+   print("минимума функции нет")
+}
+if(res1*res2-res3^2 != 0){
+   print("точки перегиба функции нет")
+}
+```
+
+**Контурный график:**
+
+```{r}
+x <- y <- seq(0, 10, length.out = 100)
+z <- outer(x, y, FUN = function(x,y) { 3*x^2+x*y+2*y^2-x-4*y })  |> t()
+plot_ly(x=x, y=y, z=z, type="contour")
+```
+
+# Задача 4
+
+Найдите частные производные функции $F=xy$ и точку, где они равны 0. Постройте объемный и контурный график. Какие особые точки вы можете выделить.
+
+**Объемный график:**
+
+```{r}
+library(plotly)
+x <- y <- seq(0, 10, length.out=100)
+f = expression(x*y)
+z <- outer(x, y, FUN = function(x,y) { x*y })  |> t()
+plot_ly(z = ~z) |> add_surface()
+print("частные производные функции")
+D(f, 'x')
+D(f, 'y')
+func <- function(x)
+{
+	return <- x[1]*x[2]
+}
+print("точка, в которой частные производные равны 0")
+result <- optim(c(0, 0), func)
+print(result$par) 
+```
+
+**Контурный график:**
+
+```{r}
+x <- y <- seq(0, 10, length.out = 100)
+z <- outer(x, y, FUN = function(x,y) { x*y })  |> t()
+plot_ly(x=x, y=y, z=z, type="contour")
+```
